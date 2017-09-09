@@ -1,7 +1,6 @@
 
 library(MASS)
 head(faithful)
-# x = read.delim("filename.txt", sep=",")
 
 # 1. We first find the range of eruption durations.
 
@@ -42,8 +41,8 @@ head(cbind(duration, waiting));
 # plot(duration, waiting, xlab="Eruption duration", ylab="Time waited")
 model = lm(waiting ~ duration, data = faithful)
 print(model)
-#plot(duration, waiting, xlab="Eruption duration", ylab="Time waited")
-# abline(model, col='blue', lwd = 4)
+plot(duration, waiting, xlab="Eruption duration", ylab="Time waited")
+abline(model, col='blue', lwd = 4)
 
 ## ----------Problem 3
 

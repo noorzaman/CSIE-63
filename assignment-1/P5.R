@@ -1,11 +1,17 @@
 
-if (!require(random)) install.packages("random")
-library(random)
-rM <- randomNumbers(n=(40*100),min=-1, max=1, col=40, check=TRUE)
-rMPnorm <- pnorm(rM, mean = 0, sd = 0, lower.tail = TRUE, log.p = FALSE)
 
-rMPnorm$new <- rowSums(rMPnorm[,1:40])
-rMPnorm$new
+# Problem 5
+df <- data.frame(replicate(40, runif(100, min = -1, max = 1)))
+#hist(df$X1)
+#hist(df$X40)
 
-hist(rMPnorm$new, prob=TRUE, xlab="Sum", ylab="Frequency", main="Sum Vs Frequency Histogram")
-curve(dnorm(x, mean=mean(rMPnorm$new), sd=sd(rMPnorm$new)), add=TRUE)
+# Problem 6
+df$sum <- rowSums(df)
+print(df)
+
+x_norm <- seq(min(df$sum), max(df$sum), length=20)
+y_norm <- (dnorm(xfit, mean=mean(df$sum), sd=sd(df$sum))) * (diff(h$mids[1:2]*length(df$sum)))
+lines(x_norm, y_norm, col="blue", lwd=2)
+
+h <- hist(df$sum, breaks = 10, col="yellow", main = "Histogram with Gaussian Curve", xlab="Sum", ylab="Frequency")
+lines(x_norm, y_norm, col="purple", lwd=2)
