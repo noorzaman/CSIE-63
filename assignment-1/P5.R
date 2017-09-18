@@ -2,8 +2,8 @@
 
 # Problem 5
 df <- data.frame(replicate(40, runif(100, min = -1, max = 1)))
-#hist(df$X1)
-#hist(df$X40)
+hist(df$X1)
+hist(df$X40)
 
 # Problem 6
 df$sum <- rowSums(df)
