@@ -35,10 +35,16 @@ printable = set(string.printable)
 
 ### Stop Words
 stop_words_df = spark.read.text("file:////Users/swaite/Stirling/CSIE-63/assignment-4/data/inputs/stop-words.csv")\
-#.rdd.flatMap(lambda x: x).collect()
 print(stop_words_df.show(10))
 
 ### Bible
+# 1. Split split words into rows
+# 2. Regex characters that aren't alpha characters
+# 3. Remove those characters
+# 4. Map the word to a row to be converted to a DF
+# 5. Do a join to remove any stop words
+# 6. Group by Bible Word and do count of uniques
+# 7. Order by frequency count
 bible_df = sc.textFile("file:////Users/swaite/Stirling/CSIE-63/assignment-4/data/inputs/clean_bible.txt")\
               .flatMap(lambda x: x.split())\
               .map(lambda x: re.sub("[^a-zA-Z]+", "", x.lower().encode("utf-8", "ignore")))\
@@ -52,6 +58,7 @@ bible_counted_df = bible_non_stop_words_df.groupBy('bible_word')\
                                           .count() \
                                           .withColumnRenamed("count", "bible_count")  \
                                           .orderBy(col('bible_count').desc())
+
 # List for us 30 most frequent words in each RDD (text). Print or store the words and the numbers of occurrences.
 print(bible_counted_df.show(30))
 
@@ -98,3 +105,4 @@ print(ulysses_combined_df.agg(sum('ulysses_count').alias('sum_ulysses_count')).s
 print "List for us a random samples containing 5% of words in the final RDD."
 final_df_sample = bible_combined_df.sample(False, 0.5, 13)
 print(final_df_sample.show())
+print(final_df_sample.count())
