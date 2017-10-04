@@ -23,10 +23,8 @@ spark = SparkSession.builder.appName("spark play").getOrCreate()
 ### Stop Words
 # Obtained a list of stop words from the following URL
 # http://www.lextek.com/manuals/onix/stopwords1.html
-stop_words = sc.textFile("file:////Users/swaite/Stirling/CSIE-63/assignment-4/data/inputs/stop-words.csv") \
-               .map(lambda line: line.split(",")) \
-               .map(lambda word: (word[0], 1)) \
-               .reduceByKey(lambda x, y: x + y)
+stop_words_rdd = sc.textFile("file:////Users/swaite/Stirling/CSIE-63/assignment-4/data/inputs/stop-words.csv")
+print(stop_words_rdd.take(10))
 
 # Use Spark transformation and action functions present in RDD API to transform those texts into RDD-s
 # that contain words and numbers of occurrence of those words in respective text.
@@ -38,13 +36,12 @@ stop_words = sc.textFile("file:////Users/swaite/Stirling/CSIE-63/assignment-4/da
 # 5.  Removes words that are stop words
 # 6.  Group By word, and does frequency count for each word
 # 7.  Sorts by frequency count
-bible_rdd = sc.textFile("file:////Users/swaite/Stirling/CSIE-63/assignment-4/data/inputs/bible.txt")\
-              .flatMap(lambda x: x.split(" "))  \
-              .map(lambda x: (re.sub('[!@#$,:;.?/\|{}0123456789()*-^~`]', '', x))) \
-              .filter(lambda x: x is not None)\
+bible_rdd = sc.textFile("file:////Users/swaite/Stirling/CSIE-63/assignment-4/data/inputs/clean_bible.txt")\
+              .flatMap(lambda x: x.split()) \
+              .map(lambda x: re.sub("[^a-zA-Z]+", "", x.lower().encode("utf-8", "ignore"))) \
               .filter(lambda x: x != "") \
-              .map(lambda x: (x.lower().encode("utf-8", "ignore"), 1)) \
-              .subtractByKey(stop_words) \
+              .subtract(stop_words_rdd) \
+              .map(lambda word: (word, 1)) \
               .reduceByKey(lambda x, y: x + y)\
               .sortBy(lambda x: x[1], ascending=False)
 
@@ -62,13 +59,13 @@ print(bible_rdd.count())
 # 5.  Removes words that are stop words
 # 6.  Group By word, and does frequency count for each word
 # 7.  Sorts by frequency count
-ulysses_rdd = sc.textFile("file:////Users/swaite/Stirling/CSIE-63/assignment-4/data/inputs/4300-2.txt")\
-                .flatMap(lambda x: x.split(" "))\
-                .map(lambda x: (re.sub('[!@#$,:;.?/\|{}0123456789()>*-^~`<]', '', x))) \
-                .filter(lambda x: x is not None)\
-                .filter(lambda x: x != "")\
-                .map(lambda x: (x.lower().encode("utf-8", "ignore"), 1)) \
-                .subtractByKey(stop_words) \
+
+ulysses_rdd = sc.textFile("file:////Users/swaite/Stirling/CSIE-63/assignment-4/data/inputs/4300-2.txt") \
+                .flatMap(lambda x: x.split()) \
+                .map(lambda x: re.sub("[^a-zA-Z]+", "", x.lower().encode("utf-8", "ignore"))) \
+                .filter(lambda x: x != "") \
+                .subtract(stop_words_rdd) \
+                .map(lambda word: (word, 1)) \
                 .reduceByKey(lambda x, y: x + y) \
                 .sortBy(lambda x: x[1], ascending=False)
 

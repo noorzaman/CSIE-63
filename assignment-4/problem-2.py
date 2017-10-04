@@ -34,7 +34,7 @@ printable = set(string.printable)
 #         text_file.write(clean_bible_text)
 
 ### Stop Words
-stop_words_df = spark.read.text("file:////Users/swaite/Stirling/CSIE-63/assignment-4/data/inputs/stop-words.csv")\
+stop_words_df = spark.read.text("file:////Users/swaite/Stirling/CSIE-63/assignment-4/data/inputs/stop-words.csv")
 print(stop_words_df.show(10))
 
 ### Bible
@@ -45,12 +45,13 @@ print(stop_words_df.show(10))
 # 5. Do a join to remove any stop words
 # 6. Group by Bible Word and do count of uniques
 # 7. Order by frequency count
-bible_df = sc.textFile("file:////Users/swaite/Stirling/CSIE-63/assignment-4/data/inputs/clean_bible.txt")\
-              .flatMap(lambda x: x.split())\
-              .map(lambda x: re.sub("[^a-zA-Z]+", "", x.lower().encode("utf-8", "ignore")))\
-              .filter(lambda x: x != "")\
-              .map(lambda x: Row(**{'bible_word': str(x)}))\
-              .toDF()
+bible_df = sc.textFile("file:////Users/swaite/Stirling/CSIE-63/assignment-4/data/inputs/clean_bible.txt") \
+             .flatMap(lambda x: x.split()) \
+             .map(lambda x: re.sub("[^a-zA-Z]+", "", x.lower().encode("utf-8", "ignore"))) \
+             .filter(lambda x: x != "") \
+             .subtract(stop_words_df.rdd) \
+             .map(lambda x: Row(**{'bible_word': str(x)}))\
+             .toDF()
 
 combined_bible_df = bible_df.join(stop_words_df, bible_df["bible_word"] == stop_words_df["value"], "left_outer")
 bible_non_stop_words_df = combined_bible_df.filter(combined_bible_df["value"].isNull()).select("bible_word")
@@ -67,6 +68,7 @@ ulysses_df = sc.textFile("file:////Users/swaite/Stirling/CSIE-63/assignment-4/da
                .flatMap(lambda x: x.split()) \
                .map(lambda x: re.sub("[^a-zA-Z]+", "", x.lower().encode("utf-8", "ignore"))) \
                .filter(lambda x: x != "") \
+               .subtract(stop_words_df.rdd) \
                .map(lambda x: Row(**{'ulysses_word': str(x)})) \
                .toDF()
 
@@ -106,3 +108,5 @@ print "List for us a random samples containing 5% of words in the final RDD."
 final_df_sample = bible_combined_df.sample(False, 0.5, 13)
 print(final_df_sample.show())
 print(final_df_sample.count())
+
+
