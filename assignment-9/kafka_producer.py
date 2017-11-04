@@ -13,3 +13,5 @@ inp = raw_input("\nPlease type a message or EXIT to exit script:\n")
 while inp != "EXIT":
     inp = raw_input()
     producer.send(sys.argv[3], b"" + str(inp))
+
+# python2.7 kafka_producer.py localhost 9092 p3-topic-1
